@@ -904,3 +904,66 @@ carregarDados();
 </script>
 </body>
 </html>
+<div style="padding:20px; background:#111; margin-top:20px; border-radius:10px;">
+  <h2>Adicionar Funcionário</h2>
+
+  <input id="nome" placeholder="Nome" />
+  <input id="lavagens" type="number" placeholder="Lavagens" />
+  <input id="valor" type="number" placeholder="Valor" />
+
+  <button onclick="adicionar()">Adicionar</button>
+  <button onclick="exportar()">Exportar JSON</button>
+
+  <ul id="lista"></ul>
+</div>
+
+<script>
+let dados = JSON.parse(localStorage.getItem("dados")) || [];
+
+function salvarLocal() {
+  localStorage.setItem("dados", JSON.stringify(dados));
+}
+
+function adicionar() {
+  const nome = document.getElementById("nome").value;
+  const lavagens = document.getElementById("lavagens").value;
+  const valor = document.getElementById("valor").value;
+
+  if (!nome) return alert("Preencha o nome");
+
+  dados.push({ nome, lavagens: Number(lavagens), valor: Number(valor) });
+
+  salvarLocal();
+  render();
+}
+
+function render() {
+  const lista = document.getElementById("lista");
+  lista.innerHTML = "";
+
+  dados.forEach((item, i) => {
+    const li = document.createElement("li");
+    li.innerHTML = `${item.nome} - ${item.lavagens} lavagens - R$ ${item.valor}
+    <button onclick="remover(${i})">❌</button>`;
+    lista.appendChild(li);
+  });
+}
+
+function remover(i) {
+  dados.splice(i, 1);
+  salvarLocal();
+  render();
+}
+
+function exportar() {
+  const blob = new Blob([JSON.stringify({ funcionarios: dados }, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "dados.json";
+  a.click();
+}
+
+render();
+</script>
