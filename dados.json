@@ -1,0 +1,133 @@
+{
+  "_instrucoes": {
+    "como_atualizar": "Ao fechar cada mês, adicione um novo objeto no array 'meses' seguindo o modelo abaixo.",
+    "campos_semana": {
+      "semana": "Número da semana no mês (1 a 5)",
+      "periodo": "Ex: 28/02 → 06/03",
+      "pagamento": "Data do pagamento no formato DD/MM/YYYY",
+      "eficiente_ii": "Total de lavagens Eficiente II na semana (soma dos 7 dias)",
+      "supremas": "Total de lavagens Suprema na semana (soma dos 7 dias)",
+      "dias_com_meta": "Quantos dias da semana alguma meta foi batida (0 a 7)",
+      "pool_total": "Valor total do pool da semana em R$ (número decimal)"
+    },
+    "campos_lavador": {
+      "nome": "Nome do lavador",
+      "dias_trabalhados": "Total de dias presentes no mês",
+      "bonus_pontualidade": "Total recebido em bônus de pontualidade no mês (R$)",
+      "bonus_sabado": "Total recebido em bônus de sábado no mês (R$)",
+      "ajuda_custo": "Total de ajuda de custo no mês (R$)",
+      "premiacao_lavagens": "Total de premiação por lavagens no mês (R$)",
+      "total_mes": "Soma de tudo acima (R$)"
+    }
+  },
+  "meses": [
+    {
+      "mes": "Março 2026",
+      "ano": 2026,
+      "mes_num": 3,
+      "semanas": [
+        {
+          "semana": 1,
+          "periodo": "28/02 → 06/03",
+          "pagamento": "07/03/2026",
+          "eficiente_ii": 28,
+          "supremas": 42,
+          "dias_com_meta": 5,
+          "pool_total": 700.00
+        },
+        {
+          "semana": 2,
+          "periodo": "07/03 → 13/03",
+          "pagamento": "14/03/2026",
+          "eficiente_ii": 35,
+          "supremas": 55,
+          "dias_com_meta": 6,
+          "pool_total": 900.00
+        },
+        {
+          "semana": 3,
+          "periodo": "14/03 → 20/03",
+          "pagamento": "21/03/2026",
+          "eficiente_ii": 30,
+          "supremas": 48,
+          "dias_com_meta": 5,
+          "pool_total": 780.00
+        },
+        {
+          "semana": 4,
+          "periodo": "21/03 → 27/03",
+          "pagamento": "28/03/2026",
+          "eficiente_ii": 25,
+          "supremas": 38,
+          "dias_com_meta": 4,
+          "pool_total": 630.00
+        },
+        {
+          "semana": 5,
+          "periodo": "28/03 → 03/04",
+          "pagamento": "04/04/2026",
+          "eficiente_ii": 32,
+          "supremas": 50,
+          "dias_com_meta": 5,
+          "pool_total": 820.00
+        }
+      ],
+      "lavadores": [
+        {
+          "nome": "Lavador 1",
+          "dias_trabalhados": 22,
+          "bonus_pontualidade": 160.00,
+          "bonus_sabado": 120.00,
+          "ajuda_custo": 5000.00,
+          "premiacao_lavagens": 756.67,
+          "total_mes": 6036.67
+        },
+        {
+          "nome": "Lavador 2",
+          "dias_trabalhados": 26,
+          "bonus_pontualidade": 200.00,
+          "bonus_sabado": 150.00,
+          "ajuda_custo": 5000.00,
+          "premiacao_lavagens": 921.33,
+          "total_mes": 6271.33
+        },
+        {
+          "nome": "Lavador 3",
+          "dias_trabalhados": 25,
+          "bonus_pontualidade": 200.00,
+          "bonus_sabado": 150.00,
+          "ajuda_custo": 5000.00,
+          "premiacao_lavagens": 893.00,
+          "total_mes": 6243.00
+        },
+        {
+          "nome": "Lavador 4",
+          "dias_trabalhados": 26,
+          "bonus_pontualidade": 160.00,
+          "bonus_sabado": 150.00,
+          "ajuda_custo": 5000.00,
+          "premiacao_lavagens": 921.33,
+          "total_mes": 6231.33
+        },
+        {
+          "nome": "Lavador 5",
+          "dias_trabalhados": 24,
+          "bonus_pontualidade": 200.00,
+          "bonus_sabado": 120.00,
+          "ajuda_custo": 5000.00,
+          "premiacao_lavagens": 848.67,
+          "total_mes": 6168.67
+        },
+        {
+          "nome": "Lavador 6",
+          "dias_trabalhados": 23,
+          "bonus_pontualidade": 200.00,
+          "bonus_sabado": 120.00,
+          "ajuda_custo": 5000.00,
+          "premiacao_lavagens": 812.00,
+          "total_mes": 6132.00
+        }
+      ]
+    }
+  ]
+}

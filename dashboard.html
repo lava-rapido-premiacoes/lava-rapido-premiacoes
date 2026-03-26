@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lava Rápido — Dashboard de Premiações</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --laranja: #E8650A;
+    --laranja-escuro: #C4540A;
+    --laranja-claro: #FFF0E6;
+    --verde: #1A6B3C;
+    --verde-claro: #E8F5EE;
+    --preto: #0F0F0F;
+    --cinza-escuro: #1C1C1C;
+    --cinza-medio: #2E2E2E;
+    --cinza: #5A5A5A;
+    --cinza-claro: #F4F4F2;
+    --branco: #FAFAF8;
+    --amarelo: #F5C842;
+    --fonte-display: 'Bebas Neue', sans-serif;
+    --fonte-corpo: 'DM Sans', sans-serif;
+    --fonte-mono: 'DM Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--preto);
+    color: var(--branco);
+    font-family: var(--fonte-corpo);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--cinza-escuro);
+    border-bottom: 3px solid var(--laranja);
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 72px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .logo-icon {
+    width: 40px; height: 40px;
+    background: var(--laranja);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+
+  .logo-text {
+    font-family: var(--fonte-display);
+    font-size: 26px;
+    letter-spacing: 2px;
+    color: var(--branco);
+    line-height: 1;
+  }
+
+  .logo-sub {
+    font-size: 11px;
+    color: var(--cinza);
+    font-family: var(--fonte-mono);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .mes-selector {
+    background: var(--cinza-medio);
+    border: 1px solid #3a3a3a;
+    color: var(--branco);
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-family: var(--fonte-corpo);
+    font-size: 14px;
+    cursor: pointer;
+    outline: none;
+  }
+
+  .mes-selector:focus { border-color: var(--laranja); }
+
+  /* ── HERO STATS ── */
+  .hero {
+    background: linear-gradient(135deg, var(--cinza-escuro) 0%, var(--cinza-medio) 100%);
+    padding: 40px;
+    border-bottom: 1px solid #2a2a2a;
+  }
+
+  .hero-title {
+    font-family: var(--fonte-display);
+    font-size: 56px;
+    letter-spacing: 3px;
+    color: var(--laranja);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .hero-subtitle {
+    font-size: 14px;
+    color: var(--cinza);
+    font-family: var(--fonte-mono);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 36px;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+  }
+
+  .stat-card {
+    background: var(--preto);
+    border: 1px solid #2a2a2a;
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+
+  .stat-card:hover { border-color: var(--laranja); transform: translateY(-2px); }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--laranja);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .stat-card:hover::before { opacity: 1; }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--cinza);
+    font-family: var(--fonte-mono);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .stat-value {
+    font-family: var(--fonte-display);
+    font-size: 38px;
+    letter-spacing: 1px;
+    line-height: 1;
+    color: var(--branco);
+  }
+
+  .stat-value.destaque { color: var(--laranja); }
+  .stat-value.verde { color: #4CAF84; }
+
+  .stat-delta {
+    font-size: 12px;
+    margin-top: 6px;
+    color: var(--cinza);
+    font-family: var(--fonte-mono);
+  }
+
+  /* ── MAIN LAYOUT ── */
+  main {
+    padding: 40px;
+    display: grid;
+    gap: 32px;
+  }
+
+  .section-title {
+    font-family: var(--fonte-display);
+    font-size: 28px;
+    letter-spacing: 2px;
+    color: var(--branco);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-title span {
+    font-family: var(--fonte-mono);
+    font-size: 12px;
+    color: var(--laranja);
+    background: rgba(232,101,10,0.12);
+    padding: 4px 10px;
+    border-radius: 20px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* ── CHARTS ROW ── */
+  .charts-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  .chart-card {
+    background: var(--cinza-escuro);
+    border: 1px solid #2a2a2a;
+    border-radius: 16px;
+    padding: 28px;
+  }
+
+  .chart-card-title {
+    font-family: var(--fonte-display);
+    font-size: 20px;
+    letter-spacing: 1px;
+    color: var(--branco);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .chart-card-title .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--laranja);
+  }
+
+  .chart-wrap { position: relative; height: 240px; }
+
+  /* ── SEMANAS TABLE ── */
+  .semanas-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
+  }
+
+  .semana-card {
+    background: var(--cinza-escuro);
+    border: 1px solid #2a2a2a;
+    border-radius: 12px;
+    padding: 18px;
+    transition: border-color 0.2s;
+  }
+
+  .semana-card:hover { border-color: var(--laranja); }
+
+  .semana-num {
+    font-family: var(--fonte-display);
+    font-size: 40px;
+    color: var(--laranja);
+    line-height: 1;
+  }
+
+  .semana-periodo {
+    font-size: 11px;
+    color: var(--cinza);
+    font-family: var(--fonte-mono);
+    margin: 4px 0 14px;
+    letter-spacing: 0.5px;
+  }
+
+  .semana-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+    border-bottom: 1px solid #2a2a2a;
+    font-size: 13px;
+  }
+
+  .semana-row:last-child { border-bottom: none; }
+  .semana-row .lbl { color: var(--cinza); }
+  .semana-row .val { font-family: var(--fonte-mono); font-weight: 500; }
+  .semana-row .val.laranja { color: var(--laranja); }
+  .semana-row .val.verde { color: #4CAF84; }
+
+  .pgto-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(26,107,60,0.2);
+    border: 1px solid rgba(76,175,132,0.3);
+    color: #4CAF84;
+    font-size: 10px;
+    font-family: var(--fonte-mono);
+    padding: 3px 8px;
+    border-radius: 20px;
+    margin-top: 12px;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── RANKING ── */
+  .ranking-list {
+    display: grid;
+    gap: 10px;
+  }
+
+  .ranking-item {
+    background: var(--cinza-escuro);
+    border: 1px solid #2a2a2a;
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: grid;
+    grid-template-columns: 44px 1fr 120px 120px 120px 120px 160px;
+    align-items: center;
+    gap: 16px;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .ranking-item:hover { border-color: #3a3a3a; background: #1f1f1f; }
+
+  .ranking-item.gold { border-color: #F5C842; }
+  .ranking-item.silver { border-color: #9E9E9E; }
+  .ranking-item.bronze { border-color: #CD7F32; }
+
+  .rank-pos {
+    font-family: var(--fonte-display);
+    font-size: 28px;
+    text-align: center;
+    color: var(--cinza);
+  }
+
+  .ranking-item.gold .rank-pos { color: var(--amarelo); }
+  .ranking-item.silver .rank-pos { color: #BDBDBD; }
+  .ranking-item.bronze .rank-pos { color: #CD7F32; }
+
+  .rank-nome {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--branco);
+  }
+
+  .rank-dias {
+    font-size: 13px;
+    color: var(--cinza);
+    text-align: center;
+  }
+
+  .rank-col {
+    text-align: right;
+  }
+
+  .rank-col .label {
+    font-size: 10px;
+    color: var(--cinza);
+    font-family: var(--fonte-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .rank-col .value {
+    font-size: 14px;
+    font-family: var(--fonte-mono);
+    font-weight: 500;
+  }
+
+  .rank-total {
+    text-align: right;
+  }
+
+  .rank-total .label {
+    font-size: 10px;
+    color: var(--cinza);
+    font-family: var(--fonte-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .rank-total .value {
+    font-family: var(--fonte-display);
+    font-size: 24px;
+    color: var(--laranja);
+  }
+
+  .rank-header {
+    display: grid;
+    grid-template-columns: 44px 1fr 120px 120px 120px 120px 160px;
+    gap: 16px;
+    padding: 0 20px 10px;
+    font-size: 10px;
+    color: var(--cinza);
+    font-family: var(--fonte-mono);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .rank-header > * { text-align: right; }
+  .rank-header > *:nth-child(1) { text-align: center; }
+  .rank-header > *:nth-child(2) { text-align: left; }
+
+  /* ── METAS COMPARATIVO ── */
+  .metas-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
+  }
+
+  .meta-card {
+    background: var(--cinza-escuro);
+    border: 1px solid #2a2a2a;
+    border-radius: 12px;
+    padding: 18px;
+    text-align: center;
+  }
+
+  .meta-semana {
+    font-size: 11px;
+    color: var(--cinza);
+    font-family: var(--fonte-mono);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+  }
+
+  .meta-dias {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+
+  .meta-dia {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    font-family: var(--fonte-mono);
+    font-weight: 500;
+  }
+
+  .meta-dia.bateu { background: rgba(26,107,60,0.3); border: 1px solid #4CAF84; color: #4CAF84; }
+  .meta-dia.nao { background: rgba(90,90,90,0.2); border: 1px solid #3a3a3a; color: var(--cinza); }
+
+  .meta-taxa {
+    font-family: var(--fonte-display);
+    font-size: 32px;
+    color: var(--amarelo);
+  }
+
+  .meta-label { font-size: 11px; color: var(--cinza); margin-top: 2px; }
+
+  /* ── HISTÓRICO MÊS A MÊS ── */
+  .historico-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .historico-table th {
+    text-align: left;
+    padding: 10px 16px;
+    font-size: 10px;
+    font-family: var(--fonte-mono);
+    color: var(--cinza);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 1px solid #2a2a2a;
+  }
+
+  .historico-table th:not(:first-child) { text-align: right; }
+
+  .historico-table td {
+    padding: 14px 16px;
+    font-size: 14px;
+    border-bottom: 1px solid #1a1a1a;
+    color: var(--branco);
+  }
+
+  .historico-table td:not(:first-child) {
+    text-align: right;
+    font-family: var(--fonte-mono);
+  }
+
+  .historico-table tr:hover td { background: #1a1a1a; }
+
+  .historico-table td:first-child {
+    font-weight: 600;
+    color: var(--laranja);
+  }
+
+  .bar-inline {
+    display: inline-block;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--laranja);
+    margin-left: 8px;
+    vertical-align: middle;
+    opacity: 0.6;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid #2a2a2a;
+    padding: 24px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--cinza);
+    font-size: 12px;
+    font-family: var(--fonte-mono);
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .stat-card, .chart-card, .semana-card, .ranking-item, .meta-card {
+    animation: fadeUp 0.4s ease both;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 1200px) {
+    .stats-grid { grid-template-columns: repeat(3, 1fr); }
+    .semanas-grid, .metas-grid { grid-template-columns: repeat(3, 1fr); }
+    .ranking-item { grid-template-columns: 40px 1fr 100px 100px 140px; }
+    .rank-header { grid-template-columns: 40px 1fr 100px 100px 140px; }
+    .ranking-item > *:nth-child(4),
+    .ranking-item > *:nth-child(5),
+    .rank-header > *:nth-child(4),
+    .rank-header > *:nth-child(5) { display: none; }
+  }
+
+  @media (max-width: 768px) {
+    header { padding: 0 20px; }
+    .hero { padding: 24px 20px; }
+    .hero-title { font-size: 36px; }
+    main { padding: 20px; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .charts-row { grid-template-columns: 1fr; }
+    .semanas-grid, .metas-grid { grid-template-columns: repeat(2, 1fr); }
+    .ranking-item { grid-template-columns: 36px 1fr 130px; }
+    .rank-header { grid-template-columns: 36px 1fr 130px; }
+    .ranking-item > *:nth-child(n+4),
+    .rank-header > *:nth-child(n+4) { display: none; }
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px;
+    color: var(--cinza);
+    font-family: var(--fonte-mono);
+    font-size: 14px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🚗</div>
+    <div>
+      <div class="logo-text">LAVA RÁPIDO</div>
+      <div class="logo-sub">Dashboard de Premiações</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <select class="mes-selector" id="mesSelector" onchange="trocarMes()">
+    </select>
+  </div>
+</header>
+
+<div class="hero" id="heroSection">
+  <div class="hero-title" id="heroTitulo">—</div>
+  <div class="hero-subtitle" id="heroSubtitulo">carregando dados...</div>
+  <div class="stats-grid" id="statsGrid"></div>
+</div>
+
+<main>
+
+  <!-- Gráficos -->
+  <section>
+    <div class="section-title">Produção Semanal <span>Gráficos</span></div>
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-card-title"><div class="dot"></div> Supremas por Semana</div>
+        <div class="chart-wrap"><canvas id="chartSupremas"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title"><div class="dot" style="background:#4CAF84"></div> Pool Total por Semana (R$)</div>
+        <div class="chart-wrap"><canvas id="chartPool"></canvas></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Semanas -->
+  <section>
+    <div class="section-title">Semanas do Mês <span>Detalhe</span></div>
+    <div class="semanas-grid" id="semanasGrid"></div>
+  </section>
+
+  <!-- Ranking -->
+  <section>
+    <div class="section-title">Ranking de Lavadores <span>Mês atual</span></div>
+    <div class="rank-header">
+      <div>#</div>
+      <div>Nome</div>
+      <div>Dias</div>
+      <div>Bônus Pont.</div>
+      <div>Bônus Sáb.</div>
+      <div>Premiação</div>
+      <div>Total Mês</div>
+    </div>
+    <div class="ranking-list" id="rankingList"></div>
+  </section>
+
+  <!-- Metas -->
+  <section>
+    <div class="section-title">Metas Batidas <span>Por semana</span></div>
+    <div class="metas-grid" id="metasGrid"></div>
+  </section>
+
+  <!-- Histórico -->
+  <section>
+    <div class="section-title">Histórico Mensal <span>Todos os meses</span></div>
+    <div class="chart-card">
+      <table class="historico-table" id="historicoTable">
+        <thead>
+          <tr>
+            <th>Mês</th>
+            <th>Efic. II</th>
+            <th>Supremas</th>
+            <th>Pool Total</th>
+            <th>Total Pago</th>
+          </tr>
+        </thead>
+        <tbody id="historicoBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div>🚗 Lava Rápido — Sistema de Premiações</div>
+  <div id="footerUpdate">dados.json</div>
+</footer>
+
+<script>
+let DADOS = null;
+let mesAtual = 0;
+let charts = {};
+
+// ── Formata moeda
+const brl = v => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+const num = v => v.toLocaleString('pt-BR');
+
+// ── Cores Chart.js
+const COR_LARANJA = '#E8650A';
+const COR_VERDE   = '#4CAF84';
+const COR_CINZA   = '#3a3a3a';
+
+// ── Carrega dados.json
+async function carregarDados() {
+  try {
+    const resp = await fetch('dados.json');
+    DADOS = await resp.json();
+    inicializar();
+  } catch(e) {
+    document.body.innerHTML = `<div class="empty-state" style="padding:100px;font-size:18px">
+      ⚠️ Não foi possível carregar dados.json<br>
+      <small style="font-size:13px;margin-top:10px;display:block">Certifique-se de abrir o dashboard via servidor local ou GitHub Pages.</small>
+    </div>`;
+  }
+}
+
+function inicializar() {
+  const meses = DADOS.meses;
+  const sel = document.getElementById('mesSelector');
+  meses.forEach((m, i) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = m.mes;
+    sel.appendChild(opt);
+  });
+  sel.value = meses.length - 1;
+  mesAtual = meses.length - 1;
+  renderizar(mesAtual);
+}
+
+function trocarMes() {
+  mesAtual = parseInt(document.getElementById('mesSelector').value);
+  renderizar(mesAtual);
+}
+
+function renderizar(idx) {
+  const mes = DADOS.meses[idx];
+  renderHero(mes);
+  renderCharts(mes);
+  renderSemanas(mes);
+  renderRanking(mes);
+  renderMetas(mes);
+  renderHistorico();
+  document.getElementById('footerUpdate').textContent = `Atualizado com dados de ${mes.mes}`;
+}
+
+// ── HERO
+function renderHero(mes) {
+  document.getElementById('heroTitulo').textContent = mes.mes.toUpperCase();
+  document.getElementById('heroSubtitulo').textContent =
+    `${mes.semanas.length} semanas  •  ciclo sábado → sexta`;
+
+  const totalEf2    = mes.semanas.reduce((a,s) => a + s.eficiente_ii, 0);
+  const totalSup    = mes.semanas.reduce((a,s) => a + s.supremas, 0);
+  const totalPool   = mes.semanas.reduce((a,s) => a + s.pool_total, 0);
+  const totalPago   = mes.lavadores.reduce((a,l) => a + l.total_mes, 0);
+  const diasComMeta = mes.semanas.reduce((a,s) => a + s.dias_com_meta, 0);
+  const totalDias   = mes.semanas.length * 7;
+  const taxaMeta    = Math.round((diasComMeta / totalDias) * 100);
+
+  const stats = [
+    { label: 'Total Supremas', value: num(totalSup), cls: 'destaque', delta: `+ ${num(totalEf2)} Eficiente II` },
+    { label: 'Pool de Lavagens', value: brl(totalPool), cls: '', delta: `${mes.semanas.length} semanas` },
+    { label: 'Total Pago Equipe', value: brl(totalPago), cls: 'verde', delta: `${mes.lavadores.length} lavadores` },
+    { label: 'Taxa de Metas', value: `${taxaMeta}%`, cls: '', delta: `${diasComMeta} dias com meta` },
+    { label: 'Média Supremas/Sem', value: Math.round(totalSup / mes.semanas.length), cls: '', delta: 'por semana' },
+  ];
+
+  document.getElementById('statsGrid').innerHTML = stats.map((s,i) => `
+    <div class="stat-card" style="animation-delay:${i*0.07}s">
+      <div class="stat-label">${s.label}</div>
+      <div class="stat-value ${s.cls}">${s.value}</div>
+      <div class="stat-delta">${s.delta}</div>
+    </div>`).join('');
+}
+
+// ── CHARTS
+function renderCharts(mes) {
+  const labels = mes.semanas.map(s => `Sem ${s.semana}`);
+
+  if (charts.supremas) charts.supremas.destroy();
+  if (charts.pool) charts.pool.destroy();
+
+  const defOpts = {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { color: '#2a2a2a' }, ticks: { color: '#5a5a5a', font: { family: 'DM Mono', size: 11 } } },
+      y: { grid: { color: '#2a2a2a' }, ticks: { color: '#5a5a5a', font: { family: 'DM Mono', size: 11 } } }
+    }
+  };
+
+  charts.supremas = new Chart(document.getElementById('chartSupremas'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        data: mes.semanas.map(s => s.supremas),
+        backgroundColor: mes.semanas.map(s => s.supremas >= 50 ? COR_LARANJA : 'rgba(232,101,10,0.45)'),
+        borderRadius: 6, borderSkipped: false,
+      }]
+    },
+    options: { ...defOpts }
+  });
+
+  charts.pool = new Chart(document.getElementById('chartPool'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        data: mes.semanas.map(s => s.pool_total),
+        borderColor: COR_VERDE,
+        backgroundColor: 'rgba(76,175,132,0.08)',
+        borderWidth: 2.5,
+        pointBackgroundColor: COR_VERDE,
+        pointRadius: 5,
+        tension: 0.35,
+        fill: true,
+      }]
+    },
+    options: {
+      ...defOpts,
+      scales: {
+        ...defOpts.scales,
+        y: { ...defOpts.scales.y, ticks: { ...defOpts.scales.y.ticks, callback: v => `R$${v}` } }
+      }
+    }
+  });
+}
+
+// ── SEMANAS
+function renderSemanas(mes) {
+  document.getElementById('semanasGrid').innerHTML = mes.semanas.map((s,i) => `
+    <div class="semana-card" style="animation-delay:${i*0.07}s">
+      <div class="semana-num">S${s.semana}</div>
+      <div class="semana-periodo">${s.periodo}</div>
+      <div class="semana-row">
+        <span class="lbl">Eficiente II</span>
+        <span class="val">${num(s.eficiente_ii)}</span>
+      </div>
+      <div class="semana-row">
+        <span class="lbl">Supremas ⭐</span>
+        <span class="val laranja">${num(s.supremas)}</span>
+      </div>
+      <div class="semana-row">
+        <span class="lbl">Dias c/ meta</span>
+        <span class="val verde">${s.dias_com_meta} / 7</span>
+      </div>
+      <div class="semana-row">
+        <span class="lbl">Pool Total</span>
+        <span class="val laranja">${brl(s.pool_total)}</span>
+      </div>
+      <div class="pgto-badge">💳 Pgto ${s.pagamento}</div>
+    </div>`).join('');
+}
+
+// ── RANKING
+function renderRanking(mes) {
+  const lavs = [...mes.lavadores].sort((a,b) => b.total_mes - a.total_mes);
+  const medalhas = ['gold','silver','bronze'];
+  const maxTotal = lavs[0].total_mes;
+
+  document.getElementById('rankingList').innerHTML = lavs.map((l,i) => `
+    <div class="ranking-item ${medalhas[i] || ''}" style="animation-delay:${i*0.06}s">
+      <div class="rank-pos">${i+1}</div>
+      <div>
+        <div class="rank-nome">${l.nome}</div>
+        <div style="font-size:11px;color:#5a5a5a;font-family:'DM Mono';">${l.dias_trabalhados} dias</div>
+      </div>
+      <div class="rank-col">
+        <div class="label">Dias</div>
+        <div class="value">${l.dias_trabalhados}</div>
+      </div>
+      <div class="rank-col">
+        <div class="label">Pontual.</div>
+        <div class="value">${brl(l.bonus_pontualidade)}</div>
+      </div>
+      <div class="rank-col">
+        <div class="label">Sábado</div>
+        <div class="value">${brl(l.bonus_sabado)}</div>
+      </div>
+      <div class="rank-col">
+        <div class="label">Lavagens</div>
+        <div class="value">${brl(l.premiacao_lavagens)}</div>
+      </div>
+      <div class="rank-total">
+        <div class="label">Total Mês</div>
+        <div class="value">${brl(l.total_mes)}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ── METAS
+function renderMetas(mes) {
+  const DIAS_ABREV = ['Sáb','Dom','Seg','Ter','Qua','Qui','Sex'];
+  document.getElementById('metasGrid').innerHTML = mes.semanas.map((s,i) => {
+    const taxa = Math.round((s.dias_com_meta / 7) * 100);
+    const dias = DIAS_ABREV.map((d, di) => {
+      const bateu = di < s.dias_com_meta;
+      return `<div class="meta-dia ${bateu ? 'bateu' : 'nao'}">${d[0]}</div>`;
+    }).join('');
+    return `
+    <div class="meta-card" style="animation-delay:${i*0.07}s">
+      <div class="meta-semana">Semana ${s.semana}</div>
+      <div class="meta-dias">${dias}</div>
+      <div class="meta-taxa">${taxa}%</div>
+      <div class="meta-label">${s.dias_com_meta} de 7 dias</div>
+      <div class="pgto-badge" style="justify-content:center;margin-top:10px">
+        ⭐ ${num(s.supremas)} Supremas
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── HISTÓRICO
+function renderHistorico() {
+  const meses = DADOS.meses;
+  const maxPool = Math.max(...meses.map(m => m.semanas.reduce((a,s) => a+s.pool_total, 0)));
+
+  document.getElementById('historicoBody').innerHTML = meses.map(m => {
+    const ef2   = m.semanas.reduce((a,s) => a+s.eficiente_ii, 0);
+    const sup   = m.semanas.reduce((a,s) => a+s.supremas, 0);
+    const pool  = m.semanas.reduce((a,s) => a+s.pool_total, 0);
+    const pago  = m.lavadores.reduce((a,l) => a+l.total_mes, 0);
+    const barW  = Math.round((pool / maxPool) * 80);
+    return `<tr>
+      <td>${m.mes}</td>
+      <td>${num(ef2)}</td>
+      <td>${num(sup)}</td>
+      <td>${brl(pool)}<span class="bar-inline" style="width:${barW}px"></span></td>
+      <td>${brl(pago)}</td>
+    </tr>`;
+  }).join('');
+}
+
+carregarDados();
+</script>
+</body>
+</html>
