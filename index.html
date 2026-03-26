@@ -967,3 +967,56 @@ function exportar() {
 
 render();
 </script>
+<script>
+let dados = JSON.parse(localStorage.getItem("dados")) || [];
+
+function salvar() {
+  localStorage.setItem("dados", JSON.stringify(dados));
+}
+
+function render() {
+  const tabela = document.getElementById("tabela");
+  tabela.innerHTML = "";
+
+  dados.forEach((item, i) => {
+    tabela.innerHTML += `
+      <tr>
+        <td contenteditable="true" oninput="editar(${i}, 'nome', this.innerText)">${item.nome}</td>
+        <td contenteditable="true" oninput="editar(${i}, 'lavagens', this.innerText)">${item.lavagens}</td>
+        <td contenteditable="true" oninput="editar(${i}, 'valor', this.innerText)">${item.valor}</td>
+        <td><button onclick="remover(${i})">❌</button></td>
+      </tr>
+    `;
+  });
+}
+
+function adicionarLinha() {
+  dados.push({ nome: "", lavagens: 0, valor: 0 });
+  salvar();
+  render();
+}
+
+function editar(index, campo, valor) {
+  if (campo !== "nome") valor = Number(valor) || 0;
+  dados[index][campo] = valor;
+  salvar();
+}
+
+function remover(i) {
+  dados.splice(i, 1);
+  salvar();
+  render();
+}
+
+function exportar() {
+  const blob = new Blob([JSON.stringify({ funcionarios: dados }, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "dados.json";
+  a.click();
+}
+
+render();
+</script>
